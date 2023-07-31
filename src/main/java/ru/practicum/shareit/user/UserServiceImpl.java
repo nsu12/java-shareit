@@ -82,8 +82,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkEmail(String email) {
+        // using validation from https://www.baeldung.com/java-email-validation-regex
         Pattern pattern = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9\\\\+_-]+(\\.[A-Za-z0-9\\\\+_-]+)*@"
-                + "[^-][A-Za-z0-9\\\\+-]+(\\.[A-Za-z0-9\\\\+-]+)*(\\.[A-Za-z]{2,})$"); // from 
+                + "[^-][A-Za-z0-9\\\\+-]+(\\.[A-Za-z0-9\\\\+-]+)*(\\.[A-Za-z]{2,})$");
         Matcher matcher = pattern.matcher(email);
         if (!matcher.matches()) {
             throw new ValidationException("Адрес должен иметь формат электронной почты");
