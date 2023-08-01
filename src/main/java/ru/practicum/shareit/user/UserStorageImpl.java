@@ -35,7 +35,7 @@ public class UserStorageImpl implements UserStorage {
         List<User> result = users.values().stream()
                 .filter(user -> user.getEmail().equals(email))
                 .collect(Collectors.toList());
-        return !result.isEmpty()? result.get(0): null;
+        return !result.isEmpty() ? result.get(0) : null;
     }
 
     @Override
