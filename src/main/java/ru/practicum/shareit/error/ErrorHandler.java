@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.exception.AccessViolationException;
 
 import javax.validation.ValidationException;
 
@@ -33,7 +34,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntryNotFoundException(final EntryNotFoundException e) {
-        log.error(e.getMessage());
+        log.error("Ошибка, {}", e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -42,7 +43,16 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleEntryAlreadyExistsException(final EntryAlreadyExistsException e) {
-        log.error("Конфликт - {}", e.getMessage());
+        log.error("Конфликт, {}", e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessViolationException(final AccessViolationException e) {
+        log.error("Нарушение прав доступа, {}", e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );

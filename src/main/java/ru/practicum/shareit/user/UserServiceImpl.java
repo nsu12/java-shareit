@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
                     String.format("Пользователь с email %s уже существует", user.getEmail())
             );
         }
-        return userStorage.addOrNull(user);
+        return userStorage.add(user);
     }
 
     @Override

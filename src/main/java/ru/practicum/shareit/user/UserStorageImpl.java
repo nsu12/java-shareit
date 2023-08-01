@@ -19,7 +19,7 @@ public class UserStorageImpl implements UserStorage {
     private int nextId = 1;
 
     @Override
-    public User addOrNull(User newUser) {
+    public User add(User newUser) {
         newUser.setId(getId());
         users.put(newUser.getId(), newUser);
         return newUser;

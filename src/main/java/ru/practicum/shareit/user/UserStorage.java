@@ -8,7 +8,7 @@ public interface UserStorage {
      * @param user добавляет пользователя в хранилище
      * @return модифицированный объект User в случае успешного добавления, либо null в случае ошибки
      */
-    User addOrNull(User user);
+    User add(User user);
 
     User getByIdOrNull(int id);
 

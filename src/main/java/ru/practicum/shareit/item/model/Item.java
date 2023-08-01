@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.request.ItemRequest;
 
 @Data
+@Builder
 public class Item {
-    private final int id;   // уникальный идентификатор вещи;
+    private int id;   // уникальный идентификатор вещи;
     private String name;    // краткое название;
     private String description; // развёрнутое описание;
     private boolean available;  // статус о том, доступна или нет вещь для аренды;

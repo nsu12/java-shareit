@@ -1,12 +1,63 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+
+    private final ItemService itemService;
+
+    @PostMapping
+    public ItemDto createItem(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @RequestBody ItemDto item
+    ) {
+        return itemService.createOrThrow(userId, item);
+    }
+
+    @GetMapping
+    public List<ItemDto> getAllUserItems(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId
+    ) {
+        return itemService.getAllOrThrow(userId);
+    }
+
+    @GetMapping(value = "/{itemId}")
+    public ItemDto getUserItemById(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @PathVariable Integer itemId
+    ) {
+        return itemService.getByIdOrThrow(userId, itemId);
+    }
+
+    @GetMapping(value = "/search")
+    public List<ItemDto> searchItemByName(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @RequestParam(value = "text") String text
+    ) {
+        return itemService.searchByNameOrThrow(userId, text);
+    }
+
+    @PatchMapping(value = "/{itemId}")
+    public ItemDto updateItem(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @PathVariable Integer itemId,
+            @RequestBody ItemDto item
+    ) {
+        return itemService.updateOrThrow(userId, itemId, item);
+    }
+
+    @DeleteMapping(value = "/{itemId}")
+    public void deleteItem(
+            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @PathVariable Integer itemId
+    ) {
+        itemService.delete(userId, itemId);
+    }
 }
