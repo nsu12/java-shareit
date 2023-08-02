@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public User createOrThrow(@Valid User user) {
+    public User createUser(@Valid User user) {
         if (userStorage.getByEmailOrNull(user.getEmail()) != null) {
             throw new EntryAlreadyExistsException(
                     String.format("Пользователь с email %s уже существует", user.getEmail())
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getOrThrow(Integer id) {
+    public User getUserById(Integer id) {
         User user = userStorage.getByIdOrNull(id);
         if (user == null) {
             throw new EntryNotFoundException(
@@ -43,12 +43,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
+    public List<User> getAllUsers() {
         return userStorage.getAll();
     }
 
     @Override
-    public User updateOrThrow(Integer id, User userDto) {
+    public User updateUser(Integer id, User userDto) {
         User userToUpdate = userStorage.getByIdOrNull(id);
         if (userToUpdate == null) {
             throw new EntryNotFoundException(
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void deleteUser(Integer id) {
         userStorage.delete(id);
     }
 

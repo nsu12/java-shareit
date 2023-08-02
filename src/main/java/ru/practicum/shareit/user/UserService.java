@@ -4,13 +4,13 @@ import javax.validation.Valid;
 import java.util.List;
 
 interface UserService {
-    User createOrThrow(@Valid User user);
+    User createUser(@Valid User user);
 
-    User getOrThrow(Integer id);
+    User getUserById(Integer id);
 
-    List<User> getAll();
+    List<User> getAllUsers();
 
-    User updateOrThrow(Integer id, User user);
+    User updateUser(Integer id, User user);
 
-    void delete(Integer id);
+    void deleteUser(Integer id);
 }

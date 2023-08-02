@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface ItemService {
 
-    ItemDto createOrThrow(Integer userId, @Valid ItemDto itemDto);
+    ItemDto createItem(Integer userId, @Valid ItemDto itemDto);
 
-    List<ItemDto> getAllOrThrow(Integer userId);
+    List<ItemDto> getAllItems(Integer userId);
 
-    ItemDto getByIdOrThrow(Integer userId, Integer itemId);
+    ItemDto getItemById(Integer userId, Integer itemId);
 
-    List<ItemDto> searchByNameOrThrow(Integer userId, String namePart);
+    List<ItemDto> searchItemByName(Integer userId, String namePart);
 
-    ItemDto updateOrThrow(Integer userId, Integer itemId, ItemDto itemDto);
+    ItemDto updateItem(Integer userId, Integer itemId, ItemDto itemDto);
 
-    void delete(Integer userId, Integer itemId);
+    void deleteItem(Integer userId, Integer itemId);
 }

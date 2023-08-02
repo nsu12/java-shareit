@@ -25,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserStorage userStorage;
 
     @Override
-    public ItemDto createOrThrow(Integer userId, @Valid ItemDto itemDto) {
+    public ItemDto createItem(Integer userId, @Valid ItemDto itemDto) {
         throwIfUserNotExists(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(userId);
@@ -33,7 +33,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllOrThrow(Integer userId) {
+    public List<ItemDto> getAllItems(Integer userId) {
         throwIfUserNotExists(userId);
         return itemStorage.getAllByOwnerId(userId).stream()
                 .map(ItemMapper::toItemDto)
@@ -41,20 +41,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getByIdOrThrow(Integer userId, Integer itemId) {
+    public ItemDto getItemById(Integer userId, Integer itemId) {
         Item item = getItemOrThrow(itemId);
         return ItemMapper.toItemDto(item);
     }
 
     @Override
-    public List<ItemDto> searchByNameOrThrow(Integer userId, String namePart) {
+    public List<ItemDto> searchItemByName(Integer userId, String namePart) {
         return itemStorage.searchByName(namePart).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public ItemDto updateOrThrow(Integer userId, Integer itemId, ItemDto itemDto) {
+    public ItemDto updateItem(Integer userId, Integer itemId, ItemDto itemDto) {
         Item item = getItemOrThrow(itemId);
         throwIfUserCantEditItem(userId, item);
 
@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void delete(Integer userId, Integer itemId) {
+    public void deleteItem(Integer userId, Integer itemId) {
         Item item = getItemOrThrow(itemId);
         throwIfUserCantEditItem(userId, item);
         itemStorage.delete(itemId);

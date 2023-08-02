@@ -18,14 +18,14 @@ public class ItemController {
             @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
             @RequestBody ItemDto item
     ) {
-        return itemService.createOrThrow(userId, item);
+        return itemService.createItem(userId, item);
     }
 
     @GetMapping
     public List<ItemDto> getAllUserItems(
             @RequestHeader(value = "X-Sharer-User-Id") Integer userId
     ) {
-        return itemService.getAllOrThrow(userId);
+        return itemService.getAllItems(userId);
     }
 
     @GetMapping(value = "/{itemId}")
@@ -33,7 +33,7 @@ public class ItemController {
             @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
             @PathVariable Integer itemId
     ) {
-        return itemService.getByIdOrThrow(userId, itemId);
+        return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping(value = "/search")
@@ -41,7 +41,7 @@ public class ItemController {
             @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
             @RequestParam(value = "text") String text
     ) {
-        return itemService.searchByNameOrThrow(userId, text);
+        return itemService.searchItemByName(userId, text);
     }
 
     @PatchMapping(value = "/{itemId}")
@@ -50,7 +50,7 @@ public class ItemController {
             @PathVariable Integer itemId,
             @RequestBody ItemDto item
     ) {
-        return itemService.updateOrThrow(userId, itemId, item);
+        return itemService.updateItem(userId, itemId, item);
     }
 
     @DeleteMapping(value = "/{itemId}")
@@ -58,6 +58,6 @@ public class ItemController {
             @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
             @PathVariable Integer itemId
     ) {
-        itemService.delete(userId, itemId);
+        itemService.deleteItem(userId, itemId);
     }
 }
