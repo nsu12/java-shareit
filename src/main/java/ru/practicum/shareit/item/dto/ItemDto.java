@@ -9,12 +9,12 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 public class ItemDto {
-    private Integer id;
+    private Long id;
     @NotBlank(message = "Название вещи должно быть задано")
     private String name;
     @NotBlank(message = "Описание вещи должно быть задано")
     private String description;
     @NotNull(message = "Статус 'доступно' должен быть задан")
     private Boolean available;
-    private Integer requestId;
+    private Long requestId;
 }

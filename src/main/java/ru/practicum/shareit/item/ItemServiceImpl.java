@@ -3,58 +3,58 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.exception.AccessViolationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Validated
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public ItemDto createItem(Integer userId, @Valid ItemDto itemDto) {
-        throwIfUserNotExists(userId);
+    public ItemDto createItem(Long userId, @Valid ItemDto itemDto) {
+        User user = getUserOrThrow(userId);
         Item item = ItemMapper.toItem(itemDto);
-        item.setOwner(userId);
-        return ItemMapper.toItemDto(itemStorage.add(item));
+        item.setOwner(user);
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> getAllItems(Integer userId) {
-        throwIfUserNotExists(userId);
-        return itemStorage.getAllByOwnerId(userId).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> getAllItems(Long userId) {
+        getUserOrThrow(userId);
+        return ItemMapper.toItemDto(itemRepository.findAllByOwner_Id(userId));
     }
 
     @Override
-    public ItemDto getItemById(Integer userId, Integer itemId) {
-        Item item = getItemOrThrow(itemId);
-        return ItemMapper.toItemDto(item);
+    public ItemDto getItemById(Long userId, Long itemId) {
+        return ItemMapper.toItemDto(getItemOrThrow(itemId));
     }
 
     @Override
-    public List<ItemDto> searchItemByName(Integer userId, String namePart) {
-        return itemStorage.searchByName(namePart).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> searchItemByName(Long userId, String text) {
+        if (text.isBlank()) return Collections.emptyList();
+        return ItemMapper.toItemDto(itemRepository.searchAvailable(text));
     }
 
+    @Transactional
     @Override
-    public ItemDto updateItem(Integer userId, Integer itemId, ItemDto itemDto) {
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         Item item = getItemOrThrow(itemId);
         throwIfUserCantEditItem(userId, item);
 
@@ -68,38 +68,35 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
 
-        itemStorage.update(item);
-
-        return ItemMapper.toItemDto(item);
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
+    @Transactional
     @Override
-    public void deleteItem(Integer userId, Integer itemId) {
+    public void deleteItem(Long userId, Long itemId) {
         Item item = getItemOrThrow(itemId);
         throwIfUserCantEditItem(userId, item);
-        itemStorage.delete(itemId);
+        itemRepository.delete(item);
     }
 
-    private Item getItemOrThrow(Integer itemId) {
-        Item item = itemStorage.getByIdOrNull(itemId);
-        if (item == null) {
-            throw new EntryNotFoundException(
-                    String.format("вещь с id = %d не найдена", itemId)
-            );
-        }
-        return item;
+    private Item getItemOrThrow(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntryNotFoundException(
+                                String.format("вещь с id = %d не найдена", itemId)
+                        )
+                );
     }
 
-    private void throwIfUserNotExists(Integer userId) {
-        if (userStorage.getByIdOrNull(userId) == null) {
-            throw new EntryNotFoundException(
-                    String.format("пользователь с указанным id (%d) не существует", userId)
-            );
-        }
+    private User getUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntryNotFoundException(
+                                String.format("пользователь с указанным id (%d) не существует", userId)
+                        )
+                );
     }
 
-    private void throwIfUserCantEditItem(Integer userId, Item item) {
-        if (item.getOwner() != userId) {
+    private void throwIfUserCantEditItem(Long userId, Item item) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new AccessViolationException("пользователь не может изменить чужую вещь");
         }
     }

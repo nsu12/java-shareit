@@ -15,7 +15,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
             @RequestBody ItemDto item
     ) {
         return itemService.createItem(userId, item);
@@ -23,22 +23,22 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllUserItems(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId
     ) {
         return itemService.getAllItems(userId);
     }
 
     @GetMapping(value = "/{itemId}")
     public ItemDto getUserItemById(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
-            @PathVariable Integer itemId
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId
     ) {
         return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping(value = "/search")
     public List<ItemDto> searchItemByName(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
             @RequestParam(value = "text") String text
     ) {
         return itemService.searchItemByName(userId, text);
@@ -46,8 +46,8 @@ public class ItemController {
 
     @PatchMapping(value = "/{itemId}")
     public ItemDto updateItem(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
-            @PathVariable Integer itemId,
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId,
             @RequestBody ItemDto item
     ) {
         return itemService.updateItem(userId, itemId, item);
@@ -55,8 +55,8 @@ public class ItemController {
 
     @DeleteMapping(value = "/{itemId}")
     public void deleteItem(
-            @RequestHeader(value = "X-Sharer-User-Id") Integer userId,
-            @PathVariable Integer itemId
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId
     ) {
         itemService.deleteItem(userId, itemId);
     }
