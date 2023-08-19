@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;

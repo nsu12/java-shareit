@@ -5,17 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.exception.AccessViolationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Validated
@@ -27,8 +34,10 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
+    private final BookingRepository bookingRepository;
+
     @Override
-    public ItemDto createItem(Long userId, @Valid ItemDto itemDto) {
+    public ItemDto createItem(Long userId, @Valid ItemInDto itemDto) {
         User user = getUserOrThrow(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(user);
@@ -38,12 +47,40 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItems(Long userId) {
         getUserOrThrow(userId);
-        return ItemMapper.toItemDto(itemRepository.findAllByOwner_Id(userId));
+        return makeItemDtosWithBookings(itemRepository.findAllByOwner_Id(userId));
+    }
+
+    private List<ItemDto> makeItemDtosWithBookings(List<Item> items) {
+        Map<Long, BookingShortDto> nextBookingsForItems =
+                bookingRepository.findNextBookingsFor(items, LocalDateTime.now()).stream()
+                        .collect(Collectors.toMap(
+                                booking -> booking.getItem().getId(),
+                                BookingMapper::toBookingShortDto,
+                                (existing, replacement) -> existing)
+                        );
+        Map<Long, BookingShortDto> lastBookingsForItems =
+                bookingRepository.findLastBookingsFor(items, LocalDateTime.now()).stream()
+                        .collect(Collectors.toMap(
+                                booking -> booking.getItem().getId(),
+                                BookingMapper::toBookingShortDto,
+                                (existing, replacement) -> existing)
+                        );
+        return ItemMapper.toItemDto(items).stream()
+                .peek(itemDto -> {
+                    itemDto.setLastBooking(lastBookingsForItems.get(itemDto.getId()));
+                    itemDto.setNextBooking(nextBookingsForItems.get(itemDto.getId()));
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItemById(Long userId, Long itemId) {
-        return ItemMapper.toItemDto(getItemOrThrow(itemId));
+        Item item = getItemOrThrow(itemId);
+        if (!item.getOwner().getId().equals(userId)) {
+            return ItemMapper.toItemDto(item);
+        } else {
+            return makeItemDtosWithBookings(List.of(item)).get(0);
+        }
     }
 
     @Override
@@ -54,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto updateItem(Long userId, Long itemId, ItemInDto itemDto) {
         Item item = getItemOrThrow(itemId);
         throwIfUserCantEditItem(userId, item);
 

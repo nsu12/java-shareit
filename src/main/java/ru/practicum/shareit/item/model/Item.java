@@ -2,8 +2,8 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 
@@ -24,7 +24,8 @@ public class Item {
     @Column(name = "is_available")
     private boolean available;  // статус о том, доступна или нет вещь для аренды;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
     private User owner;    // владелец вещи;
 
     @OneToOne(fetch = FetchType.LAZY)
