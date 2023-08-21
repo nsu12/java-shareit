@@ -47,8 +47,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(
             "select booking " +
             "from Booking booking " +
-            "where booking.item in ?1 and booking.endDate < ?2 and booking.status = 'APPROVED'" +
-            "order by booking.item.id DESC, booking.endDate ASC"
+            "where booking.item in ?1 and booking.startDate < ?2 and booking.status = 'APPROVED'" +
+            "order by booking.item.id DESC, booking.startDate DESC"
     )
     List<Booking> findLastBookingsFor(List<Item> items, LocalDateTime date);
+
+    List<Booking> findByBooker_IdAndItem_Id(Long userId, Long itemId, Sort sort);
 }
