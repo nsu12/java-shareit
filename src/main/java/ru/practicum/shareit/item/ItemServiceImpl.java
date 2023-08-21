@@ -67,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
+
     @Override
     public List<ItemDto> getAllItems(Long userId) {
         getUserOrThrow(userId);

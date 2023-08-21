@@ -33,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
+
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
         Booking booking = getBookingOrThrow(bookingId);
@@ -86,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
                     String.format("вещь с id = %d не доступна для бронирования", booking.getItem().getId())
             );
         }
-        booking.setStatus(approved? BookingStatus.APPROVED: BookingStatus.REJECTED);
+        booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         return BookingMapper.toBookingDto(booking);
     }
 
