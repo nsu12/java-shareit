@@ -7,9 +7,6 @@ import ru.practicum.shareit.booking.dto.BookingInDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
@@ -36,7 +33,7 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getUserBookings(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "state", required = false, defaultValue = "ALL") String state
+            @RequestParam(value = "state", defaultValue = "ALL") String state
     ) {
         return bookingService.getUserBookings(userId, state);
     }
@@ -44,7 +41,7 @@ public class BookingController {
     @GetMapping(value = "/owner")
     public List<BookingDto> getOwnerBookings(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "state", required = false, defaultValue = "ALL") String state
+            @RequestParam(value = "state", defaultValue = "ALL") String state
     ) {
         return bookingService.getOwnerBookings(userId, state);
     }
