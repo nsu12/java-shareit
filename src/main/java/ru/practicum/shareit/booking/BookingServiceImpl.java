@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingStateFilter;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.error.EntryNotFoundException;
@@ -92,87 +93,78 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getUserBookings(Long userId, String stateFilter) {
+    public List<BookingDto> getUserBookings(Long userId, BookingStateFilter stateFilter) {
         getUserOrThrow(userId);
         List<Booking> bookings;
         Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
         switch (stateFilter) {
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findByBooker_IdAndEndDateIsBefore(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findAllCurrentForBooker(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findByBooker_IdAndStartDateIsAfter(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByBooker_IdAndStatusIs(
                         userId, BookingStatus.WAITING, sort
                 );
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByBooker_IdAndStatusIs(
                         userId, BookingStatus.REJECTED, sort
                 );
                 break;
-            case "ALL":
+            default:
                 bookings = bookingRepository.findByBooker_Id(
                         userId, sort
-                );
-                break;
-            default:
-                throw new InvalidRequestParamsException(
-                        String.format("Unknown state: %s", stateFilter)
                 );
         }
         return BookingMapper.toBookingDto(bookings);
     }
 
     @Override
-    public List<BookingDto> getOwnerBookings(Long userId, String stateFilter) {
+    public List<BookingDto> getOwnerBookings(Long userId, BookingStateFilter stateFilter) {
         getUserOrThrow(userId);
         List<Booking> bookings;
         Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
         switch (stateFilter) {
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findByItem_Owner_IdAndEndDateIsBefore(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findAllCurrentForOwner(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findByItem_Owner_IdAndStartDateIsAfter(
                         userId, LocalDateTime.now(), sort
                 );
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByItem_Owner_IdAndStatusIs(
                         userId, BookingStatus.WAITING, sort
                 );
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByItem_Owner_IdAndStatusIs(
                         userId, BookingStatus.REJECTED, sort
                 );
                 break;
-            case "ALL":
-                bookings = bookingRepository.findByItem_Owner_Id(userId, sort);
-                break;
             default:
-                throw new InvalidRequestParamsException(
-                        String.format("Unknown state: %s", stateFilter)
-                );
+                bookings = bookingRepository.findByItem_Owner_Id(userId, sort);
+
         }
         return BookingMapper.toBookingDto(bookings);
     }
