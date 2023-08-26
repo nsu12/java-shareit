@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.error.EntryAlreadyExistsException;
 import ru.practicum.shareit.error.EntryNotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -13,48 +15,39 @@ import javax.validation.ValidationException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Validated
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
-    public User createUser(@Valid User user) {
-        if (userStorage.getByEmailOrNull(user.getEmail()) != null) {
-            throw new EntryAlreadyExistsException(
-                    String.format("Пользователь с email %s уже существует", user.getEmail())
-            );
-        }
-        return userStorage.add(user);
+    public UserDto createUser(@Valid UserDto user) {
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
     }
 
     @Override
-    public User getUserById(Integer id) {
-        User user = userStorage.getByIdOrNull(id);
-        if (user == null) {
-            throw new EntryNotFoundException(
-                    String.format("Пользователь с id = %d не найден", id)
-            );
-        }
-        return user;
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntryNotFoundException(String.format("Пользователь с id = %d не найден", id)));
+
+        return UserMapper.toUserDto(user);
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userStorage.getAll();
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User updateUser(Integer id, User userDto) {
-        User userToUpdate = userStorage.getByIdOrNull(id);
-        if (userToUpdate == null) {
-            throw new EntryNotFoundException(
-                    String.format("Пользователь с id = %d не найден", id)
-            );
-        }
+    public UserDto updateUser(Long id, UserDto userDto) {
+        User userToUpdate = userRepository.findById(id)
+                .orElseThrow(() -> new EntryNotFoundException(String.format("Пользователь с id = %d не найден", id)));
 
         if (userDto.getName() != null) {
             userToUpdate.setName(userDto.getName());
@@ -62,23 +55,15 @@ public class UserServiceImpl implements UserService {
 
         if (userDto.getEmail() != null) {
             checkEmail(userDto.getEmail());
-            User userWithEmail = userStorage.getByEmailOrNull(userDto.getEmail());
-            if (userWithEmail != null && userWithEmail.getId() != userToUpdate.getId()) {
-                throw new EntryAlreadyExistsException(
-                        String.format("Email %s уже используется", userDto.getEmail())
-                );
-            }
             userToUpdate.setEmail(userDto.getEmail());
         }
 
-        userStorage.update(userToUpdate);
-
-        return userToUpdate;
+        return UserMapper.toUserDto(userRepository.save(userToUpdate));
     }
 
     @Override
-    public void deleteUser(Integer id) {
-        userStorage.delete(id);
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     private void checkEmail(String email) {
