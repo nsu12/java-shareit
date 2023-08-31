@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +13,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
-                .request(ItemRequestMapper.toItemRequestDto(item.getRequest()))
+                .requestId(item.getRequest().getId())
                 .build();
     }
 

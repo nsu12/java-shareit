@@ -16,6 +16,8 @@ import ru.practicum.shareit.exception.AccessViolationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -44,6 +47,9 @@ public class ItemServiceImpl implements ItemService {
         User user = getUserOrThrow(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(user);
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(getItemRequestOrThrow(itemDto.getRequestId()));
+        }
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
@@ -150,6 +156,14 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntryNotFoundException(
                                 String.format("вещь с id = %d не найдена", itemId)
+                        )
+                );
+    }
+
+    private ItemRequest getItemRequestOrThrow(Long itemRequestId) {
+        return itemRequestRepository.findById(itemRequestId)
+                .orElseThrow(() -> new EntryNotFoundException(
+                                String.format("запрос с id = %d не найден", itemRequestId)
                         )
                 );
     }

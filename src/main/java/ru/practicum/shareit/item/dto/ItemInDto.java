@@ -15,4 +15,5 @@ public class ItemInDto {
     private String description;
     @NotNull(message = "Статус 'доступно' должен быть задан")
     private Boolean available;
+    private Long requestId;
 }
