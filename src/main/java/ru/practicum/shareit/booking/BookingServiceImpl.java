@@ -103,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
                                             @Positive Integer size) {
         getUserOrThrow(userId);
         PageRequest pageRequest = PageRequest.of(
-                from/size, size, Sort.by(Sort.Direction.DESC, "startDate")
+                from / size, size, Sort.by(Sort.Direction.DESC, "startDate")
         );
         Page<Booking> bookings;
         switch (stateFilter) {
@@ -147,7 +147,7 @@ public class BookingServiceImpl implements BookingService {
                                              @Positive Integer size) {
         getUserOrThrow(userId);
         PageRequest pageRequest = PageRequest.of(
-                from/size, size, Sort.by(Sort.Direction.DESC, "startDate")
+                from / size, size, Sort.by(Sort.Direction.DESC, "startDate")
         );
         Page<Booking> bookings;
         switch (stateFilter) {

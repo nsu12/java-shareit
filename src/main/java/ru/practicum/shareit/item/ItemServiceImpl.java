@@ -131,7 +131,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) return Collections.emptyList();
         return ItemMapper.toItemDto(
                 itemRepository.searchAvailable(
-                        text, PageRequest.of(from/size, size)
+                        text, PageRequest.of(from / size, size)
                 ).toList()
         );
     }
