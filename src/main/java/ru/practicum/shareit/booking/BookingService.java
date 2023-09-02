@@ -6,6 +6,8 @@ import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingStateFilter;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -18,7 +20,9 @@ public interface BookingService {
     @Transactional
     BookingDto setBookingApproveStatus(Long userId, Long bookingId, Boolean approved);
 
-    List<BookingDto> getUserBookings(Long userId, BookingStateFilter stateFilter);
+    List<BookingDto> getUserBookings(Long userId, BookingStateFilter stateFilter,
+                                     @PositiveOrZero Integer from, @Positive Integer size);
 
-    List<BookingDto> getOwnerBookings(Long userId, BookingStateFilter stateFilter);
+    List<BookingDto> getOwnerBookings(Long userId, BookingStateFilter stateFilter,
+                                      @PositiveOrZero Integer from, @Positive Integer size);
 }

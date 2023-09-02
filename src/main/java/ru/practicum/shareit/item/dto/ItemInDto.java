@@ -1,13 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@AllArgsConstructor
-@Getter
+@Data
 public class ItemInDto {
     @NotBlank(message = "Название вещи должно быть задано")
     private String name;

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.error.EntryNotFoundException;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestInDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
@@ -15,8 +18,12 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +33,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+
     @Override
     @Transactional
     public ItemRequestDto createItemRequest(Long userId, @Valid ItemRequestInDto itemRequestDto) {
@@ -39,30 +48,47 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getRequestsByOwner(Long userId) {
-        return ItemRequestMapper.toItemRequestDto(
-                itemRequestRepository.findAllByRequester_Id(userId, Sort.by("created").descending())
+        getUserOrThrow(userId);
+        return makeItemRequestDtosWithItems(
+                itemRequestRepository.findAllByRequester_Id(
+                        userId, Sort.by("created").descending()
+                )
         );
     }
 
     @Override
-    public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) {
-        return ItemRequestMapper.toItemRequestDto(
+    public List<ItemRequestDto> getAllRequests(Long userId, @PositiveOrZero Integer from, @Positive Integer size) {
+        getUserOrThrow(userId);
+        return makeItemRequestDtosWithItems(
                 itemRequestRepository.findAllByRequester_IdNot(
-                        userId,
-                        PageRequest.of(from / size, size, Sort.by("created").descending())
-                ).toList()
+                    userId,
+                    PageRequest.of(from / size, size, Sort.by("created").descending())
+            ).toList()
         );
+    }
+
+    private List<ItemRequestDto> makeItemRequestDtosWithItems(List<ItemRequest> requests) {
+        Map<Long, List<Item>> itemsForRequests = itemRepository.findItemsFor(requests).stream()
+                .collect(Collectors.groupingBy(item -> item.getRequest().getId()));
+        return ItemRequestMapper.toItemRequestDto(requests).stream()
+                .peek(itemRequestDto -> itemRequestDto.setItems(
+                        ItemMapper.toItemDto(itemsForRequests.get(itemRequestDto.getId())))
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
     public ItemRequestDto getRequestById(Long userId, Long requestId) {
-        return ItemRequestMapper.toItemRequestDto(
-                itemRequestRepository.findById(requestId)
-                        .orElseThrow(() -> new EntryNotFoundException(
-                                        String.format("запрос с указанным id (%d) не существует", requestId)
-                                )
+        getUserOrThrow(userId);
+        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new EntryNotFoundException(
+                                String.format("запрос с указанным id (%d) не существует", requestId)
                         )
-        );
+                );
+        List<Item> items = itemRepository.findAllByRequest_Id(requestId);
+        ItemRequestDto dto = ItemRequestMapper.toItemRequestDto(itemRequest);
+        dto.setItems(ItemMapper.toItemDto(items));
+        return dto;
     }
 
     private User getUserOrThrow(Long userId) {

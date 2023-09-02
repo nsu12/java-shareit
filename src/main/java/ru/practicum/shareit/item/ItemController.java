@@ -34,9 +34,11 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllUserItems(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
-        return itemService.getAllItems(userId);
+        return itemService.getAllItems(userId, from, size);
     }
 
     @GetMapping(value = "/{itemId}")
@@ -50,9 +52,11 @@ public class ItemController {
     @GetMapping(value = "/search")
     public List<ItemDto> searchItemByName(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "text") String text
+            @RequestParam(value = "text") String text,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
-        return itemService.searchItemByName(userId, text);
+        return itemService.searchItemByName(userId, text, from, size);
     }
 
     @PatchMapping(value = "/{itemId}")

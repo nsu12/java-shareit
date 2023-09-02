@@ -5,6 +5,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestInDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -16,5 +18,5 @@ public interface ItemRequestService {
 
     ItemRequestDto getRequestById(Long userId, Long requestId);
 
-    List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size);
+    List<ItemRequestDto> getAllRequests(Long userId, @PositiveOrZero Integer from, @Positive Integer size);
 }
