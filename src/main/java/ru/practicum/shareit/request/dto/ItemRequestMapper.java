@@ -12,14 +12,28 @@ public class ItemRequestMapper {
                 request.getId(),
                 request.getDescription(),
                 request.getCreated(),
-                null
+                Collections.emptyList()
         );
     }
 
     public static List<ItemRequestDto> toItemRequestDto(List<ItemRequest> requests) {
-        if (requests.isEmpty()) return Collections.emptyList();
+        if (requests == null || requests.isEmpty()) return Collections.emptyList();
         return requests.stream()
                 .map(ItemRequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
+    }
+
+    public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto) {
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(itemRequestDto.getId());
+        itemRequest.setDescription(itemRequestDto.getDescription());
+        itemRequest.setCreated(itemRequestDto.getCreated());
+        return itemRequest;
+    }
+
+    public static List<ItemRequest> toItemRequest(List<ItemRequestDto> itemRequestDtoList) {
+        return itemRequestDtoList.stream()
+                .map(ItemRequestMapper::toItemRequest)
                 .collect(Collectors.toList());
     }
 }

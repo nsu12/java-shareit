@@ -17,9 +17,24 @@ public class CommentMapper {
     }
 
     public static List<CommentDto> toCommentDto(List<Comment> comments) {
-        if (comments == null) return Collections.emptyList();
+        if (comments == null || comments.isEmpty()) return Collections.emptyList();
         return comments.stream()
                 .map(CommentMapper::toCommentDto)
+                .collect(Collectors.toList());
+    }
+
+    public static Comment toComment(CommentDto commentDto) {
+        Comment comment = new Comment();
+        comment.setId(commentDto.getId());
+        comment.setText(commentDto.getText());
+        comment.setCreated(commentDto.getCreated());
+        return comment;
+    }
+
+    public static List<Comment> toComment(List<CommentDto> commentDtoList) {
+        if (commentDtoList == null || commentDtoList.isEmpty()) return Collections.emptyList();
+        return commentDtoList.stream()
+                .map(CommentMapper::toComment)
                 .collect(Collectors.toList());
     }
 }

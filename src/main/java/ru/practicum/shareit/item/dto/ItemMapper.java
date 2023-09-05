@@ -13,12 +13,13 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
+                .comments(Collections.emptyList())
                 .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
     public static List<ItemDto> toItemDto(List<Item> items) {
-        if (items == null) return Collections.emptyList();
+        if (items == null || items.isEmpty()) return Collections.emptyList();
         return items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -30,5 +31,21 @@ public class ItemMapper {
         item.setDescription(itemDto.getDescription());
         item.setAvailable(itemDto.getAvailable());
         return item;
+    }
+
+    public static Item toItem(ItemDto itemDto) {
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        return item;
+    }
+
+    public static List<Item> toItem(List<ItemDto> itemDtoList) {
+        if (itemDtoList.isEmpty()) return Collections.emptyList();
+        return itemDtoList.stream()
+                .map(ItemMapper::toItem)
+                .collect(Collectors.toList());
     }
 }

@@ -30,4 +30,19 @@ public class BookingMapper {
                 booking.getId(), booking.getBooker().getId()
         );
     }
+
+    public static Booking toBooking(BookingDto bookingDto) {
+        Booking booking = new Booking();
+        booking.setId(bookingDto.getId());
+        booking.setStartDate(bookingDto.getStart());
+        booking.setEndDate(bookingDto.getEnd());
+        booking.setStatus(bookingDto.getStatus());
+        return booking;
+    }
+
+    public static List<Booking> toBooking(List<BookingDto> bookingDtoList) {
+        return bookingDtoList.stream()
+                .map(BookingMapper::toBooking)
+                .collect(Collectors.toList());
+    }
 }
