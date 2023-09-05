@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 
 public class ItemRequestMapper {
     public static ItemRequestDto toItemRequestDto(ItemRequest request) {
-        return ItemRequestDto.builder()
-                .id(request.getId())
-                .description(request.getDescription())
-                .created(request.getCreated())
-                .build();
+        return new ItemRequestDto(
+                request.getId(),
+                request.getDescription(),
+                request.getCreated(),
+                null
+        );
     }
 
     public static List<ItemRequestDto> toItemRequestDto(List<ItemRequest> requests) {

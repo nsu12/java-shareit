@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public CommentDto createCommentForItem(Long userId, Long itemId, @Valid CommentDto commentDto) {
+    public CommentDto createCommentForItem(Long userId, Long itemId, @Valid CommentInDto commentInDto) {
         User user = getUserOrThrow(userId);
         Item item = getItemOrThrow(itemId);
         List<Booking> bookings = bookingRepository.findByBooker_IdAndItem_Id(
@@ -70,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
             );
         }
         Comment comment = new Comment();
-        comment.setText(commentDto.getText());
+        comment.setText(commentInDto.getText());
         comment.setAuthor(user);
         comment.setItem(item);
         comment.setCreated(LocalDateTime.now());

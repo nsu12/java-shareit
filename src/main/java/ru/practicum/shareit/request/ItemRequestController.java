@@ -23,7 +23,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDto> getYourRequests(
+    public List<ItemRequestDto> getUserRequests(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId
     ) {
         return itemRequestService.getRequestsByOwner(userId);
