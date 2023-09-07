@@ -15,6 +15,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.error.EntryNotFoundException;
+import ru.practicum.shareit.error.ItemNotAvailableException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -122,6 +124,29 @@ class BookingControllerTest {
         checkOneBooking(result, bookingDtoList.get(0));
     }
 
+    @Test
+    void shouldGetErrorOnCreateBookingWhenNoItemAvailable() throws Exception {
+        when(bookingService.createBooking(anyLong(), any()))
+                .thenThrow(ItemNotAvailableException.class);
+
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(new ObjectMapper()
+                                .registerModule(new JavaTimeModule())
+                                .writeValueAsString(
+                                        new BookingInDto(
+                                                99L,
+                                                LocalDateTime.now().plusSeconds(10),
+                                                LocalDateTime.now().plusDays(1)
+                                        )
+                                ))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    }
+
     private void checkOneBooking(ResultActions result, BookingDto bookingDto) throws Exception {
         result
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
@@ -151,6 +176,17 @@ class BookingControllerTest {
                 )
                 .andExpect(status().isOk());
         checkOneBooking(result, bookingDtoList.get(0));
+    }
+
+    @Test
+    void shouldGetErrorOnGetBookingByIdWhenNotFound() throws Exception {
+        when(bookingService.getBookingById(anyLong(), anyLong()))
+                .thenThrow(EntryNotFoundException.class);
+
+        mockMvc.perform(get("/bookings/99")
+                        .header("X-Sharer-User-Id", 3L)
+                )
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
     @Test

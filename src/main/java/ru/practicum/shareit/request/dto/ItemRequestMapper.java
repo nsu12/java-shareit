@@ -22,18 +22,4 @@ public class ItemRequestMapper {
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
     }
-
-    public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto) {
-        ItemRequest itemRequest = new ItemRequest();
-        itemRequest.setId(itemRequestDto.getId());
-        itemRequest.setDescription(itemRequestDto.getDescription());
-        itemRequest.setCreated(itemRequestDto.getCreated());
-        return itemRequest;
-    }
-
-    public static List<ItemRequest> toItemRequest(List<ItemRequestDto> itemRequestDtoList) {
-        return itemRequestDtoList.stream()
-                .map(ItemRequestMapper::toItemRequest)
-                .collect(Collectors.toList());
-    }
 }

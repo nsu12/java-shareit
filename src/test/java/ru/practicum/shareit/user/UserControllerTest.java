@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -100,6 +102,26 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
+    }
+
+    @Test
+    void shouldGetErrorWhenWrongEmail() throws Exception {
+        Mockito.when(userService.updateUser(Mockito.anyLong(), Mockito.any()))
+                .thenThrow(ValidationException.class);
+
+        mockMvc.perform(
+                        patch("/users/1")
+                                .content(
+                                        "{ " +
+                                                "\"name\": \"update\"," +
+                                                "\"email\": \"bad email.com\"" +
+                                                "}"
+                                )
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
     }
 
     @Test

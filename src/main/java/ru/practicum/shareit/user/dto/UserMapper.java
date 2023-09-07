@@ -29,11 +29,4 @@ public class UserMapper {
          user.setEmail(userDto.getEmail());
          return user;
     }
-
-    public static List<User> toUser(List<UserDto> userDtoList) {
-        if (userDtoList.isEmpty()) return Collections.emptyList();
-        return userDtoList.stream()
-                .map(UserMapper::toUser)
-                .collect(Collectors.toList());
-    }
 }

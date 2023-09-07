@@ -13,7 +13,7 @@ import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.error.InvalidRequestParamsException;
-import ru.practicum.shareit.exception.AccessViolationException;
+import ru.practicum.shareit.error.AccessViolationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;

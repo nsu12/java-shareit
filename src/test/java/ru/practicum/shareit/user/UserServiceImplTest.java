@@ -7,8 +7,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,10 +31,11 @@ class UserServiceImplTest {
     @Test
     void shouldCreateUser() {
         // given
-        UserDto userDto = new UserDto( 1L, "John Doe", "john.doe@gmail.com");
-        when(userRepository.save(any())).thenReturn(UserMapper.toUser(userDto));
+        UserDto userDto = new UserDto(1L, "John Doe", "john.doe@gmail.com");
 
         //
+        when(userRepository.save(any()))
+                .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         UserDto resultDto = userService.createUser(userDto);
 
         checkResult(userDto, resultDto);
@@ -40,14 +43,14 @@ class UserServiceImplTest {
 
     @Test
     void shouldGetUserById() {
-        UserDto userDto = new UserDto( 1L, "John Doe", "john.doe@gmail.com");
+        User user = makeUser(1L, "John Doe", "john.doe@gmail.com");
 
         when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(UserMapper.toUser(userDto)));
+                .thenReturn(Optional.of(user));
 
         UserDto resultDto = userService.getUserById(1L);
 
-        checkResult(userDto, resultDto);
+        checkResult(UserMapper.toUserDto(user), resultDto);
     }
 
     @Test
@@ -65,36 +68,64 @@ class UserServiceImplTest {
 
     @Test
     void shouldGetAllUsers() {
-        List<UserDto> userDtoList = List.of(
-                new UserDto(1L, "John Doe", "john.doe@gmail.com"),
-                new UserDto(2L, "Will Smith", "will.smith@gmail.com")
+        List<User> userList = List.of(
+                makeUser(1L, "John Doe", "john.doe@gmail.com"),
+                makeUser(2L, "Will Smith", "will.smith@gmail.com")
         );
 
-        when(userRepository.findAll()).thenReturn(UserMapper.toUser(userDtoList));
+        when(userRepository.findAll()).thenReturn(userList);
 
         List<UserDto> result = userService.getAllUsers();
 
         assertThat(result, is(notNullValue()));
-        assertThat(result, hasSize(userDtoList.size()));
+        assertThat(result, hasSize(userList.size()));
 
-        for (int i = 0; i < userDtoList.size(); i++) {
-            assertThat(result.get(i).getId(), is(userDtoList.get(i).getId()));
-            assertThat(result.get(i).getName(), is(userDtoList.get(i).getName()));
-            assertThat(result.get(i).getEmail(), is(userDtoList.get(i).getEmail()));
+        for (int i = 0; i < userList.size(); i++) {
+            assertThat(result.get(i).getId(), is(userList.get(i).getId()));
+            assertThat(result.get(i).getName(), is(userList.get(i).getName()));
+            assertThat(result.get(i).getEmail(), is(userList.get(i).getEmail()));
         }
     }
 
     @Test
     void shouldUpdateUser() {
-        UserDto userDto = new UserDto( 1L, "John Doe", "john.doe@gmail.com");
+        UserDto updatedUserDto = new UserDto(1L, "new name", "new@email.com");
 
-        when(userRepository.save(any())).thenReturn(UserMapper.toUser(userDto));
+        when(userRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         when(userRepository.findById(anyLong()))
-                .thenReturn(Optional.of(UserMapper.toUser(userDto)));
+                .thenReturn(Optional.of(makeUser(1L, "John Doe", "john.doe@gmail.com")));
 
-        UserDto resultDto = userService.updateUser(1L, userDto);
+        UserDto resultDto = userService.updateUser(1L, updatedUserDto);
 
-        checkResult(userDto, resultDto);
+        checkResult(updatedUserDto, resultDto);
+    }
+
+    @Test
+    void shouldThrowOnUpdateUserWhenWrongEmail() {
+
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(makeUser(1L, "John Doe", "john.doe@gmail.com")));
+
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userService.updateUser(1L, new UserDto(1L, "", "bad email.com"))
+        );
+
+        assertThat(exception.getMessage(), is(notNullValue()));
+    }
+
+    @Test
+    void shouldThrowOnUpdateUserWhenNoUserExist() {
+
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.empty());
+
+        final EntryNotFoundException exception = assertThrows(
+                EntryNotFoundException.class,
+                () -> userService.updateUser(99L, new UserDto(1L, "", "bad email.com"))
+        );
+
+        assertThat(exception.getMessage(), is(notNullValue()));
     }
 
     private static void checkResult(UserDto userDto, UserDto resultDto) {
@@ -102,5 +133,13 @@ class UserServiceImplTest {
         assertThat(resultDto.getId(), is(userDto.getId()));
         assertThat(resultDto.getName(), is(userDto.getName()));
         assertThat(resultDto.getEmail(), is(userDto.getEmail()));
+    }
+
+    private User makeUser(Long id, String name, String email) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        user.setEmail(email);
+        return user;
     }
 }

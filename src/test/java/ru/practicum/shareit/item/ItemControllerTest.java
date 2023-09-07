@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.error.AccessViolationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentInDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -208,6 +210,22 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.nextBooking", is(itemDtoList.get(0).getNextBooking())))
                 .andExpect(jsonPath("$.comments", hasSize(itemDtoList.get(0).getComments().size())))
                 .andExpect(jsonPath("$.requestId", is(itemDtoList.get(0).getRequestId()), Long.class));
+    }
+
+    @Test
+    void shouldGetErrorWhenUpdateWrongItem() throws Exception {
+        when(itemService.updateItem(anyLong(), anyLong(), any()))
+                .thenThrow(AccessViolationException.class);
+
+        mockMvc.perform(patch("/items/1")
+                .header("X-Sharer-User-Id", 2L)
+                .content(
+                        "{ \"available\" : true }"
+                )
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is(HttpStatus.FORBIDDEN.value()));
     }
 
     @Test

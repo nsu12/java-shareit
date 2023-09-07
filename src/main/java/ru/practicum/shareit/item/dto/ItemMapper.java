@@ -32,20 +32,4 @@ public class ItemMapper {
         item.setAvailable(itemDto.getAvailable());
         return item;
     }
-
-    public static Item toItem(ItemDto itemDto) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        return item;
-    }
-
-    public static List<Item> toItem(List<ItemDto> itemDtoList) {
-        if (itemDtoList.isEmpty()) return Collections.emptyList();
-        return itemDtoList.stream()
-                .map(ItemMapper::toItem)
-                .collect(Collectors.toList());
-    }
 }
