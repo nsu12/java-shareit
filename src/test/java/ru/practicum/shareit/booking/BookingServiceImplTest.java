@@ -379,7 +379,7 @@ class BookingServiceImplTest {
         checkResult(targetBookings, BookingMapper.toBookingDto(sourceBookings));
     }
 
-    private void checkResult(List<BookingDto> targetBookings, List<BookingDto> sourceBookings) {
+    static void checkResult(List<BookingDto> targetBookings, List<BookingDto> sourceBookings) {
         assertThat(targetBookings, hasSize(sourceBookings.size()));
         for (var sourceBooking : sourceBookings) {
             assertThat(targetBookings, hasItem(allOf(

@@ -127,7 +127,7 @@ class ItemRequestServiceImplTest {
         checkResult(targetItemRequestDtos, sourceItemRequestDtos);
     }
 
-    private void checkResult(List<ItemRequestDto> targetItemRequests, List<ItemRequestDto> sourceItemRequests) {
+    static void checkResult(List<ItemRequestDto> targetItemRequests, List<ItemRequestDto> sourceItemRequests) {
         assertThat(targetItemRequests, hasSize(sourceItemRequests.size()));
         for (var sourceItemRequest : sourceItemRequests) {
             assertThat(targetItemRequests, hasItem(allOf(

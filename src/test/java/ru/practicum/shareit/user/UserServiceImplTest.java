@@ -9,11 +9,11 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-
 import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
@@ -75,16 +75,9 @@ class UserServiceImplTest {
 
         when(userRepository.findAll()).thenReturn(userList);
 
-        List<UserDto> result = userService.getAllUsers();
+        List<UserDto> resultList = userService.getAllUsers();
 
-        assertThat(result, is(notNullValue()));
-        assertThat(result, hasSize(userList.size()));
-
-        for (int i = 0; i < userList.size(); i++) {
-            assertThat(result.get(i).getId(), is(userList.get(i).getId()));
-            assertThat(result.get(i).getName(), is(userList.get(i).getName()));
-            assertThat(result.get(i).getEmail(), is(userList.get(i).getEmail()));
-        }
+        checkResult(UserMapper.toUserDto(userList), resultList);
     }
 
     @Test
@@ -128,11 +121,22 @@ class UserServiceImplTest {
         assertThat(exception.getMessage(), is(notNullValue()));
     }
 
-    private static void checkResult(UserDto userDto, UserDto resultDto) {
+    static void checkResult(UserDto userDto, UserDto resultDto) {
         assertThat(resultDto, is(notNullValue()));
         assertThat(resultDto.getId(), is(userDto.getId()));
         assertThat(resultDto.getName(), is(userDto.getName()));
         assertThat(resultDto.getEmail(), is(userDto.getEmail()));
+    }
+
+    static void checkResult(List<UserDto> sourceUsers, List<UserDto> targetUsers) {
+        assertThat(targetUsers, hasSize(sourceUsers.size()));
+        for (var sourceUser : sourceUsers) {
+            assertThat(targetUsers, hasItem(allOf(
+                    hasProperty("id", equalTo(sourceUser.getId())),
+                    hasProperty("name", equalTo(sourceUser.getName())),
+                    hasProperty("email", equalTo(sourceUser.getEmail()))
+            )));
+        }
     }
 
     private User makeUser(Long id, String name, String email) {

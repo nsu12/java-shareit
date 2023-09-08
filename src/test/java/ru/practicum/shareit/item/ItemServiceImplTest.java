@@ -133,7 +133,7 @@ class ItemServiceImplTest {
         checkResult(targetItem, ItemMapper.toItemDto(sourceItem));
     }
 
-    private static void checkResult(ItemDto targetItem, ItemDto sourceItem) {
+    static void checkResult(ItemDto targetItem, ItemDto sourceItem) {
         assertThat(targetItem, notNullValue());
         assertThat(targetItem.getId(), equalTo(sourceItem.getId()));
         assertThat(targetItem.getName(), equalTo(sourceItem.getName()));
@@ -252,7 +252,7 @@ class ItemServiceImplTest {
         checkResult(targetItemDtos, sourceItemDtos);
     }
 
-    private void checkResult(List<ItemDto> targetItems, List<ItemDto> sourceItems) {
+    static void checkResult(List<ItemDto> targetItems, List<ItemDto> sourceItems) {
         assertThat(targetItems, hasSize(sourceItems.size()));
         for (var sourceItem : sourceItems) {
             assertThat(targetItems, hasItem(allOf(
