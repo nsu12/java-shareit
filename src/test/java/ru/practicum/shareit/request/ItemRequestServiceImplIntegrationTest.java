@@ -27,7 +27,6 @@ class ItemRequestServiceImplIntegrationTest {
 
     private List<User> users;
     private List<ItemRequest> sourceItemRequests;
-
     private List<Item> items;
 
     @BeforeEach
