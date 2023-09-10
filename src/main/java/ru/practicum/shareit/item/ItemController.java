@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentInDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInDto;
 
@@ -27,16 +28,18 @@ public class ItemController {
     public CommentDto createComment(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
             @PathVariable Long itemId,
-            @RequestBody CommentDto comment
+            @RequestBody CommentInDto comment
     ) {
         return itemService.createCommentForItem(userId, itemId, comment);
     }
 
     @GetMapping
     public List<ItemDto> getAllUserItems(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
-        return itemService.getAllItems(userId);
+        return itemService.getAllItems(userId, from, size);
     }
 
     @GetMapping(value = "/{itemId}")
@@ -50,9 +53,11 @@ public class ItemController {
     @GetMapping(value = "/search")
     public List<ItemDto> searchItemByName(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "text") String text
+            @RequestParam(value = "text") String text,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
-        return itemService.searchItemByName(userId, text);
+        return itemService.searchItemByName(userId, text, from, size);
     }
 
     @PatchMapping(value = "/{itemId}")

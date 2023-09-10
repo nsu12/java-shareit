@@ -35,28 +35,36 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getUserBookings(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "state", defaultValue = "ALL") String state
+            @RequestParam(value = "state", defaultValue = "ALL") String state,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
         return bookingService.getUserBookings(
-                userId, BookingStateFilter.fromString(state).orElseThrow(
-                        () -> new InvalidRequestParamsException(
-                                String.format("Unknown state: %s", state)
-                        )
-                )
+                userId,
+                BookingStateFilter.fromString(state).orElseThrow(
+                        () -> new InvalidRequestParamsException(String.format("Unknown state: %s", state))
+                ),
+                from,
+                size
         );
     }
 
     @GetMapping(value = "/owner")
     public List<BookingDto> getOwnerBookings(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestParam(value = "state", defaultValue = "ALL") String state
+            @RequestParam(value = "state", defaultValue = "ALL") String state,
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
         return bookingService.getOwnerBookings(
-                userId, BookingStateFilter.fromString(state).orElseThrow(
+                userId,
+                BookingStateFilter.fromString(state).orElseThrow(
                         () -> new InvalidRequestParamsException(
                                 String.format("Unknown state: %s", state)
                         )
-                )
+                ),
+                from,
+                size
         );
     }
 

@@ -17,7 +17,7 @@ public class CommentMapper {
     }
 
     public static List<CommentDto> toCommentDto(List<Comment> comments) {
-        if (comments == null) return Collections.emptyList();
+        if (comments == null || comments.isEmpty()) return Collections.emptyList();
         return comments.stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList());

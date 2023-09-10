@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,14 +13,18 @@ import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.error.EntryNotFoundException;
 import ru.practicum.shareit.error.InvalidRequestParamsException;
-import ru.practicum.shareit.exception.AccessViolationException;
+import ru.practicum.shareit.error.AccessViolationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -44,12 +50,15 @@ public class ItemServiceImpl implements ItemService {
         User user = getUserOrThrow(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(user);
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(getItemRequestOrThrow(itemDto.getRequestId()));
+        }
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Transactional
     @Override
-    public CommentDto createCommentForItem(Long userId, Long itemId, @Valid CommentDto commentDto) {
+    public CommentDto createCommentForItem(Long userId, Long itemId, @Valid CommentInDto commentInDto) {
         User user = getUserOrThrow(userId);
         Item item = getItemOrThrow(itemId);
         List<Booking> bookings = bookingRepository.findByBooker_IdAndItem_Id(
@@ -61,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
             );
         }
         Comment comment = new Comment();
-        comment.setText(commentDto.getText());
+        comment.setText(commentInDto.getText());
         comment.setAuthor(user);
         comment.setItem(item);
         comment.setCreated(LocalDateTime.now());
@@ -69,9 +78,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItems(Long userId) {
+    public List<ItemDto> getAllItems(Long userId, @PositiveOrZero Integer from, @Positive Integer size) {
         getUserOrThrow(userId);
-        return makeItemDtosWithBookingsAndComments(itemRepository.findAllByOwner_Id(userId));
+        return makeItemDtosWithBookingsAndComments(
+                itemRepository.findAllByOwner_Id(
+                        userId, PageRequest.of(from / size, size)
+                ).toList()
+        );
     }
 
     private List<ItemDto> makeItemDtosWithBookingsAndComments(List<Item> items) {
@@ -114,9 +127,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItemByName(Long userId, String text) {
+    public List<ItemDto> searchItemByName(Long userId, String text, @PositiveOrZero Integer from, @Positive Integer size) {
         if (text.isBlank()) return Collections.emptyList();
-        return ItemMapper.toItemDto(itemRepository.searchAvailable(text));
+        return ItemMapper.toItemDto(
+                itemRepository.searchAvailable(
+                        text, PageRequest.of(from / size, size)
+                ).toList()
+        );
     }
 
     @Transactional
@@ -150,6 +167,14 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntryNotFoundException(
                                 String.format("вещь с id = %d не найдена", itemId)
+                        )
+                );
+    }
+
+    private ItemRequest getItemRequestOrThrow(Long itemRequestId) {
+        return itemRequestRepository.findById(itemRequestId)
+                .orElseThrow(() -> new EntryNotFoundException(
+                                String.format("запрос с id = %d не найден", itemRequestId)
                         )
                 );
     }

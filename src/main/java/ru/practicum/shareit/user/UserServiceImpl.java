@@ -15,7 +15,6 @@ import javax.validation.ValidationException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+        return UserMapper.toUserDto(userRepository.findAll());
     }
 
     @Override

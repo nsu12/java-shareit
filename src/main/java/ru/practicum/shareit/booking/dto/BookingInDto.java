@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.booking.validator.NotInPast;
 
@@ -7,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 public class BookingInDto {
     @NotNull(message = "ID вещи должен быть задан")
     private Long itemId;

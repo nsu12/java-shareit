@@ -4,6 +4,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.dto.UserMapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ public class BookingMapper {
     }
 
     public static List<BookingDto> toBookingDto(List<Booking> bookings)  {
+        if (bookings.isEmpty()) return Collections.emptyList();
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
