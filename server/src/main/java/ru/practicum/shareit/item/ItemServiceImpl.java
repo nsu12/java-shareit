@@ -77,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
         getUserOrThrow(userId);
         return makeItemDtosWithBookingsAndComments(
                 itemRepository.findAllByOwner_Id(
-                        userId, PageRequest.of(from / size, size)
+                        userId, PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"))
                 ).toList()
         );
     }
